@@ -38,6 +38,7 @@ app.get('/test', (req, res) => {
 
 async function start() {
    try {
+      console.log(DB_USER, DB_PASSWORD, DB_NAME);
       await mongoose.connect(`mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.gcl213u.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`)
       app.listen(PORT, () => console.log(`http://${HOST}:${PORT}`));
    } catch (e) {

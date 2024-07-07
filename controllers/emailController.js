@@ -6,13 +6,12 @@ import dotenv from 'dotenv'
 dotenv.config();
 
 export const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
+    host: 'smtp.mail.ru',
+    port: 465,
+    secure: true,
     auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
     }
 });
 
@@ -26,12 +25,16 @@ const fileDisplayNames = {
 
 export const sendEmailWithFiles = async (req, res) => {
     try {
-        const { userId, fullname, email } = req.body;
+        const { userId, fullname, email, major } = req.body;
         const requiredFiles = ['uni-cert', 'photo-3x4', 'attestat', 'id-doc'];
 
         const user = await User.findById(userId).populate('files');
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
+        }
+
+        if( major === '') {
+            return res.status(404).json({ message: 'Major is not selected.' });
         }
 
         const fileKeyMap = {};
@@ -53,10 +56,10 @@ export const sendEmailWithFiles = async (req, res) => {
 
 
         const fileDetailsText = user.files.map(file => `${fileDisplayNames[file.filename.split('.')[0]]}: ${file.filename}`).join('\n');
-        const emailText = `A new application has been submitted by ${fullname}. Attached are the required files:\n\n${fileDetailsText}`;
+        const emailText = `A new application has been submitted by ${fullname}.\nSelected major: ${major} \nAttached are the required files:\n\n${fileDetailsText}`;
 
         const mailOptions = {
-            from: process.env.GMAIL_USER,
+            from: `"Uninroll" <${process.env.MAIL_USER}>`,
             to: email,
             subject: 'New Application',
             text: emailText,
