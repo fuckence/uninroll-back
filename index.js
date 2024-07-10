@@ -19,7 +19,9 @@ const app = express();
 
 const uploadsDir = path.resolve(fileURLToPath(import.meta.url), '../uploads');
 
-app.use(cors());
+app.use(cors({
+   origin: 'https://uninroll.com'
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadsDir));
