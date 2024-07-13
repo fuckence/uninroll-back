@@ -10,7 +10,7 @@ export const getApplications = async (req, res) => {
             })
         }
 
-        const applications = await Application.find({ user: user_id })
+        const applications = await Application.find({ user: user._id })
         if(!applications) {
             res.status(400).json({ message: 'Applications not found' })
         }
