@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import imaps from 'imap-simple';
 import User from '../models/User.js'
 import File from '../models/File.js'
 import path from "path";
@@ -14,6 +15,17 @@ export const transporter = nodemailer.createTransport({
         pass: process.env.MAIL_PASS,
     }
 });
+
+const imapConfig = {
+    imap: {
+        user: process.env.MAIL_USER,
+        password: process.env.MAIL_PASS,
+        host: 'imap.mail.ru',
+        port: 993,
+        tls: true,
+        authTimeout: 3000
+    }
+};
 
 const fileDisplayNames = {
     'uni-cert': 'UNI Certificate',
@@ -66,12 +78,25 @@ export const sendEmailWithFiles = async (req, res) => {
             attachments: attachments
         };
 
-        transporter.sendMail(mailOptions, (error, info) => {
+        transporter.sendMail(mailOptions, async (error, info) => {
             if (error) {
                 console.log(error + ' ' + info);
-                return res.status(500).json({ message: 'Failed to send email', error: error.message });
+                return res.status(500).json({message: 'Failed to send email', error: error.message});
             }
-            res.status(200).json({ message: 'Application submitted successfully' });
+            try {
+                const connection = await imaps.connect(imapConfig)
+                await connection.openBox('Sent')
+
+                const message = await simpleParser(mailOptions.text)
+                await connection.append(message, { mailbox: 'Sent', flags: '\\Seen' })
+
+                res.status(200).json({message: 'Application submitted successfully'});
+
+            } catch (imapError) {
+                console.log(imapError);
+                res.status(500).json({message: 'Failed to send email', error: imapError.message});
+            }
+
         });
     } catch (error) {
         console.log(error);
