@@ -85,10 +85,25 @@ export const sendEmailWithFiles = async (req, res) => {
             }
             try {
                 const connection = await imaps.connect(imapConfig)
-                await connection.openBox('Sent')
+                await connection.openBox('INBOX');
 
-                const message = await simpleParser(mailOptions.text)
-                await connection.append(message, { mailbox: 'Sent', flags: '\\Seen' })
+                const boxList = await connection.getBoxes();
+                if (!boxList['uninroll-applications']) {
+                    await connection.addBox('uninroll-applications');
+                }
+
+                await connection.openBox('uninroll-applications');
+
+                const message = [
+                    `From: "Uninroll" <${process.env.MAIL_USER}>`,
+                    `To: ${email}`,
+                    `Subject: New Application`,
+                    `MIME-Version: 1.0`,
+                    `Content-Type: text/plain; charset=UTF-8`,
+                    '',
+                    emailText
+                ].join('\n');
+                await connection.append(message, { mailbox: 'uninroll-applications', flags: '\\Seen' })
 
                 res.status(200).json({message: 'Application submitted successfully'});
 
