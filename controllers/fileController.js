@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import File from '../models/File.js';
 import fs from 'fs';
 import fileFieldConfig  from "../helpers/fileFields.js";
-import { formatFullname, getFormattedDate, transporter } from '../helpers/utilities.js';
+import { getFormattedDate } from '../helpers/utilities.js';
 
 // Ensure this path is correct
 

@@ -1,7 +1,6 @@
 import path from 'path';
 import multer from 'multer';
 import fs from 'fs';
-import nodemailer from 'nodemailer';
 import User from '../models/User.js';
 
 export const getFormattedDate = ()=> {
@@ -17,17 +16,6 @@ export const formatFullname = (fullname) => {
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
 }
-
-export const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    }
-});
 
 export const storage = multer.diskStorage({
     destination: async (req, file, cb) => {

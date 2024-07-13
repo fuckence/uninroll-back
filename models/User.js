@@ -25,7 +25,11 @@ const UserSchema = new mongoose.Schema({
     files: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'File',
-    }]
+    }],
+    applications: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Application',
+    }],
 }, { timestamps: true });
 
 export default mongoose.model('User', UserSchema)

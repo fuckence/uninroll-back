@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import imaps from 'imap-simple';
 import User from '../models/User.js'
 import File from '../models/File.js'
+import Application from '../models/Application.js'
 import path from "path";
 import fs from 'fs';
 import dotenv from 'dotenv'
@@ -38,7 +39,7 @@ const fileDisplayNames = {
 
 export const sendEmailWithFiles = async (req, res) => {
     try {
-        const { userId, fullname, email, major } = req.body;
+        const { userId, fullname, email, major, university } = req.body;
         const requiredFiles = ['uni-cert', 'photo-3x4', 'attestat', 'id-doc'];
 
         const user = await User.findById(userId).populate('files');
@@ -125,6 +126,13 @@ export const sendEmailWithFiles = async (req, res) => {
 
                 await connection.append(mimeMessage, { mailbox: 'uninroll-applications', flags: '\\Seen' })
 
+                const newApplication = new Application({
+                    user: userId,
+                    university: university,
+                    major: major,
+                });
+
+                await newApplication.save();
                 res.status(200).json({message: 'Application submitted successfully'});
 
             } catch (imapError) {
