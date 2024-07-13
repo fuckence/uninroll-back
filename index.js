@@ -6,6 +6,7 @@ dotenv.config();
 import userRouter from './routes/userRoute.js'
 import fileRouter from './routes/fileRoute.js'
 import emailRouter from './routes/emailRoute.js'
+import applicationRouter from './routes/applicationRoute.js'
 import path from "path"
 import { fileURLToPath } from 'url'
 
@@ -30,6 +31,7 @@ app.use('/uploads', express.static(uploadsDir));
 app.use('/api/email', emailRouter)
 app.use('/api/auth', userRouter)
 app.use('/api/file', fileRouter)
+app.use('/api/application', applicationRouter)
 
 
 

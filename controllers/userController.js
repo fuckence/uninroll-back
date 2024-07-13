@@ -2,6 +2,7 @@ import User from '../models/User.js'
 import bcrypt from 'bcryptjs'
 import jwt from "jsonwebtoken"
 import {body, validationResult} from "express-validator";
+import Application from "../models/Application.js";
 
 // Register user
 export const register = [
@@ -140,6 +141,8 @@ export const getMe = async (req, res) => {
         res.json({ message: 'No access' })
     }
 }
+
+
 
 // Update user details
 export const updateUser = [
