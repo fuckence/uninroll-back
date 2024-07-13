@@ -3,6 +3,7 @@ import imaps from 'imap-simple';
 import User from '../models/User.js'
 import File from '../models/File.js'
 import path from "path";
+import fs from 'fs';
 import dotenv from 'dotenv'
 dotenv.config();
 
@@ -94,16 +95,35 @@ export const sendEmailWithFiles = async (req, res) => {
 
                 await connection.openBox('uninroll-applications');
 
-                const message = [
+                const boundary = `----=_Part_${Date.now()}`;
+                let mimeMessage = [
                     `From: "Uninroll" <${process.env.MAIL_USER}>`,
                     `To: ${email}`,
                     `Subject: New Application`,
                     `MIME-Version: 1.0`,
+                    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+                    '',
+                    `--${boundary}`,
                     `Content-Type: text/plain; charset=UTF-8`,
                     '',
                     emailText
-                ].join('\n');
-                await connection.append(message, { mailbox: 'uninroll-applications', flags: '\\Seen' })
+                ];
+                for (const attachment of attachments) {
+                    const fileContent = fs.readFileSync(attachment.path).toString("base64");
+                    mimeMessage.push(
+                        `--${boundary}`,
+                        `Content-Type: application/octet-stream; name="${attachment.filename}"`,
+                        `Content-Transfer-Encoding: base64`,
+                        `Content-Disposition: attachment; filename="${attachment.filename}"`,
+                        '',
+                        fileContent
+                    );
+                }
+                mimeMessage.push(`--${boundary}--`);
+
+                mimeMessage = mimeMessage.join('\n');
+
+                await connection.append(mimeMessage, { mailbox: 'uninroll-applications', flags: '\\Seen' })
 
                 res.status(200).json({message: 'Application submitted successfully'});
 
