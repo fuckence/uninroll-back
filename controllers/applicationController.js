@@ -14,7 +14,7 @@ export const getApplications = async (req, res) => {
         if(!applications) {
             res.status(400).json({ message: 'Applications not found' })
         }
-        res.status(200).json({ applications })
+        res.status(200).json({ applications: applications })
     } catch (error) {
         console.error('Failed to fetch applications:', error);
         res.status(500).json({ message: error.message });
